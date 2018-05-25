@@ -1,0 +1,41 @@
+global proc shelf_rgAnim () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 34
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "FkIk Matching" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "fkIkMatching" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "FkIk" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.cmds as cmds\nimport math\n\ngeneric = ['generic', 'arm', 'leg']\nconstraints = []\nlocs = []\ntestChannels = ['x','y','z']\nkeyChannels = ['tx','ty','tz','rx','ry','rz']\n\nctrls = cmds.ls( selection=True )\n\nif (len(ctrls) <1):\n    cmds.error(\"\\nPlease select one or more of the IK attr control boxes\\n\")\n    \nfor ct in ctrls:\n\n    #nameSp = ct.rpartition(\":\")[0]\n    setupDataNode = ''\n    ikSwitchCtrl = ''\n    \n    #print(\"\\nTesting for \"+ct+\".setupData\")\n    if cmds.objExists(ct+\".setupData\"):\n        setupDataNode = cmds.listConnections(ct+\".setupData\",s=True,d=False)[0]\n        #ct = nameSp+\":\"+ct\n    else:\n        cmds.error(\"\\nNo setup data on ctrl selected\\n\")\n        \n    ikSwitchCtrl = cmds.listConnections(setupDataNode+\".theSwitchControl\",s=0,d=1)[0]\n    ikTrnControl = cmds.listConnections(setupDataNode+\".ikTrnControl\",s=0,d=1)[0]\n    \n    if cmds.objExists(ikSwitchCtrl+\".fkIk\"):\n        \n        ikAttr = cmds.getAttr(ikSwitchCtrl+\".fkIk\")\n        \n        setupType = cmds.getAttr(setupDataNode+\".setupType\")\n\n        ikPartners = cmds.listConnections(setupDataNode+\".ikPartners\",s=0,d=1)\n        fkPartners = cmds.listConnections(setupDataNode+\".fkPartners\",s=0,d=1)\n\n        if setupType in generic:\n            #if in IK switch to FK\n            if ikAttr:\n                for ctrl in fkPartners:\n                    \n                    useRot = []\n                    \n                    for chn in testChannels:\n                        if cmds.getAttr(ctrl+'.r'+chn,l=True):\n                            useRot.append(chn)\n                    if len(useRot) < 3:\n                        constraints.append(cmds.orientConstraint(ctrl+\"_orient1\",ctrl,mo=False,w=1, skip=tuple(useRot))[0])\n                    \n                useTrans = []\n                \n                for chn in testChannels:\n                    if cmds.getAttr(ctrl+'.t'+chn,l=True):\n                        useTrans.append(chn)\n                if len(useTrans) < 3:\n                    constraints.append(cmds.pointConstraint(ikPartners[0],ikPartners[0]+\"_orient1\",mo=False,w=1, skip=tuple(useTrans))[0])\n                \n                cmds.select(ikTrnControl,r=True)\n                \n                for fkctrl in fkPartners:\n                    for chn in keyChannels:\n                        keyit = cmds.keyframe(fkctrl, attribute= chn, sl=False, q=True, tc=True)\n                        \n                        if keyit is not None:\n                            print fkctrl+'.'+chn+' ', keyit\n                            cmds.setKeyframe(fkctrl+'.'+chn)\n                \n            #if in FK switch to IK    \n            else:\n    \n                #for theAttr in ikCopyAttrs:\n                    #cmds.setAttr(ikPartners[-1]+'.'+theAttr, cmds.getAttr(ikPartners[-1]+'_orient1.'+theAttr)) \n                for ikpv in ikPartners:\n                    loc1 = cmds.spaceLocator(n=ikpv+'_loc')[0]\n                    cmds.xform(loc1 ,ws=True,m=(cmds.xform(ikpv+\"_orient1\",q=True,ws=True,m=True)))\n                    locs.append(loc1)\n                    constraints.append(cmds.pointConstraint(loc1,ikpv,mo=False,w=1)[0])\n                #constraints.append(cmds.orientConstraint(loc1,ikPartners[-1],mo=False,w=1)[0])\n                \n                loc2 = cmds.spaceLocator(n=ikTrnControl+'_loc')[0]\n                cmds.xform(loc2 ,ws=True,m=(cmds.xform(ikTrnControl+\"_orient1\",q=True,ws=True,m=True)))\n                locs.append(loc2)\n                constraints.append(cmds.parentConstraint(loc2,ikTrnControl,mo=False,w=1)[0])\n    \n                cmds.select(ikTrnControl,r=True)\n                \n                #copy attrs for reverse setups\n                allUD = cmds.listAttr(setupDataNode,ud=True)\n                justCopyAttrs = [s for s in allUD if s.startswith('_')]\n                #print justCopyAttrs\n                for jc in justCopyAttrs:\n                    cmds.setAttr(ikTrnControl+'.'+jc[1:], cmds.getAttr(setupDataNode+'.'+jc))\n                    \n                for zero in ['roll','bank']:\n                    if cmds.objExists(ikTrnControl+'.'+zero):\n                        cmds.setAttr(ikTrnControl+'.'+zero,0)\n        \n                for chn in keyChannels:\n                    keyit = cmds.keyframe(ikTrnControl, attribute= chn, sl=False, q=True, tc=True)\n                    \n                    if keyit is not None:\n                        print ikTrnControl+'.'+chn+' ', keyit\n                        cmds.setKeyframe(ikTrnControl+'.'+chn)\n                \n            cmds.setAttr(ikSwitchCtrl+\".fkIk\", not ikAttr)\n            cmds.delete(constraints)\n            \n        if len(locs) >0:\n            cmds.delete(locs)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 
