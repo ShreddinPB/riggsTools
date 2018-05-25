@@ -1,1 +1,1 @@
-+ rtsp 1.0 C:\Users\jriggs\Dropbox (Personal)\riggsTools
++ rigTool 1.0 C:\Users\jriggs\Dropbox (Personal)\riggsTools
