@@ -104,8 +104,25 @@ class guiLoader(object):
 
         self.ui.controlsListWidget.addItems(cmds.listConnections(theShape+'.ctrls', s=0,d=1))
 
+        shapeIndex = self.indexFromString(selected.text())
+
+        faceNodeAttr = self.facialNodes[0]+'.'+selected.text()
+        isConnected = cmds.listConnections(faceNodeAttr,s=1,d=0,p=1)
+        if isConnected:
+            faceNodeAttr = isConnected[0]
+
         if self.ui.autoActivateCheckBox.isChecked():
             self.startEditShape(ctrlString)
+
+        else:
+            if cmds.getAttr(faceNodeAttr):
+                cmds.setAttr(faceNodeAttr, 0)
+                self.ui.shapesListWidget.item(shapeIndex).setBackground(Qt.black)
+                self.ui.shapesListWidget.item(shapeIndex).setForeground(Qt.lightGray)
+            else:
+                cmds.setAttr(faceNodeAttr, 1)
+                self.ui.shapesListWidget.item(shapeIndex).setBackground(Qt.yellow)
+                self.ui.shapesListWidget.item(shapeIndex).setForeground(Qt.black)
 
     def editShapeButton(self):
         theShape = self.ui.shapesListWidget.selectedItems()[0].text()

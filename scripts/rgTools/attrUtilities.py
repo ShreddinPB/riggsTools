@@ -513,7 +513,7 @@ class attrUtilities(object):
             index=enumList.index(value)
             cmds.setAttr(node+"."+attr,index)
         else:
-            log.warning(node+"."+attr+' does not contain the value ', value)
+            print(node+"."+attr+' does not contain the value ', value)
 
 
     """

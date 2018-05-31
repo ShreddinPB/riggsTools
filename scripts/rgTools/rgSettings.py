@@ -10,6 +10,9 @@ class rgSettings(object):
 
         #directories
         self.installLocation = __file__.rpartition('\\')[0]+'/' #'C:/Users/jriggs/cloudDrives/Dropbox/riggingToolsetPython/scripts/rtsp/'
+
+        #temp for now till I have time to figure out a better way to do this.
+        self.rigBuildScriptsLocation = 'C:/Users/jriggs/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
         #print '#### INITIALIZING RTSP FROM: ',self.installLocation
         self.autoSetupsDir = self.installLocation+'autoSetups'
         self.controlLocation = self.installLocation+'controlShape/'

@@ -26,6 +26,7 @@ class fileUtils(object):
         self.__ikScriptsLocation = self.__settings.ikSystems #path.join(path.dirname(__file__), 'ikSystem')
         self.__ikAutoSetupsLocation = self.__settings.autoSetupsDir #path.join(path.dirname(__file__), 'autoSetup')
         self.__rootLocation =  self.__settings.installLocation #path.join(path.dirname(__file__))
+        self.__riggingLocation =  self.__settings.rigBuildScriptsLocation #path.join(path.dirname(__file__))
 
     def checkOrMakeDirectory(self, theDir):
 
@@ -139,11 +140,11 @@ class fileUtils(object):
 
         if theType != 'controlShape':
             if theType == 'ikAddOns':
-                theSystems = self.returnFiles(self.__rootLocation+'/ikSystems/'+theType, ['py'])
+                theSystems = self.returnFiles(self.__riggingLocation+'/ikSystems/'+theType, ['py'])
             else:
-                theSystems = self.returnFiles(self.__rootLocation+'/'+theType, ['py'])
+                theSystems = self.returnFiles(self.__riggingLocation+'/'+theType, ['py'])
         else:
-            theSystems = self.returnFiles(self.__rootLocation+'/'+theType, ['ctrlShape'])
+            theSystems = self.returnFiles(self.__riggingLocation+'/'+theType, ['ctrlShape'])
 
         for ts in theSystems:
             if ts.startswith('__') is not True:
