@@ -332,13 +332,20 @@ class guiLoader(object):
             print shapeName, self.ctrlsInNewShape, self.facialNodes[0]
 
             #cmds.addAttr(self.facialNodes[0], ln=shapeName, parent = 'driverValues', at="double", dv = 0) # parent = 'driverValues',
-            self.__atu.addToCompoundAttr(self.facialNodes[0], 'driverValues', shapeName)
 
+            #if using compound attr
+            #self.__atu.addToCompoundAttr(self.facialNodes[0], 'driverValues', shapeName)
+
+            #not using compound right now
+            cmds.addAttr(self.facialNodes[0], ln=shapeName, at="double", min = 0, dv = 0)
+            cmds.setAttr(self.facialNodes[0]+'.'+shapeName, 0, e=True, keyable=True)
+
+            print 'Made ', self.facialNodes[0], shapeName, cmds.objExists(self.facialNodes[0]+'.'+shapeName)
             #get animation data
 
 
             for ctrl in self.ctrlsInNewShape:
-
+                print 'building sdks'
                 buffGrp = cmds.listConnections(ctrl+'.addedBufferGroup', s=1,d=0 )
                 rots = cmds.getAttr(ctrl+'.r' )
                 trans = cmds.getAttr(ctrl+'.t' )
