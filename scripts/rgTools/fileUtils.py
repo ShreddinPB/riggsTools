@@ -137,7 +137,7 @@ class fileUtils(object):
 
         returnSystems = []
         theSystems = []
-
+        print self.__riggingLocation+'/'+theType
         if theType != 'controlShape':
             if theType == 'ikAddOns':
                 theSystems = self.returnFiles(self.__riggingLocation+'/ikSystems/'+theType, ['py'])

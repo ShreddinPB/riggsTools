@@ -16,6 +16,8 @@ import rgTools.rgSettings as rigset
 import rgTools.createMatrixReverse as cmr
 import rgTools.attrUtilities as atru
 
+import rgTools.insertBufferGroup as ibg
+
 reload(rigset)
 reload(rmeta)
 reload(cmr)
@@ -83,6 +85,7 @@ class guiLoader(object):
             print 'Found all ctrls: ', self.allFaceCtrls
 
             for ctrl in self.allFaceCtrls:
+                print ctrl
                 self.allFaceCtrlShapes.append(cmds.listRelatives(ctrl,shapes=True)[0])
 
             print 'Found all ctrl shapes: ', self.allFaceCtrlShapes
@@ -146,6 +149,7 @@ class guiLoader(object):
         self.faceShapes = self.__meta.findMeta(self.__settings.faceShapes)
         print 'found face shapes: ', self.faceShapes
         self.ui.shapesListWidget.clear()
+        self.ui.allShapesDriverWidget.clear()
 
         self.nameSpaced =True
         self.nameSpace = ':'.join(self.faceShapes[0].split(':')[:-1])
@@ -158,6 +162,10 @@ class guiLoader(object):
             self.ui.shapesListWidget.addItem(fs)
             self.ui.shapesListWidget.item(idx).setBackground(Qt.black)
             self.ui.shapesListWidget.item(idx).setForeground(Qt.lightGray)
+
+            self.ui.allShapesDriverWidget.addItem(fs)
+            self.ui.allShapesDriverWidget.item(idx).setBackground(Qt.black)
+            self.ui.allShapesDriverWidget.item(idx).setForeground(Qt.lightGray)
 
     def clickedControl(self, ctrlClicked):
 
@@ -346,25 +354,29 @@ class guiLoader(object):
 
             for ctrl in self.ctrlsInNewShape:
                 print 'building sdks'
-                buffGrp = cmds.listConnections(ctrl+'.addedBufferGroup', s=1,d=0 )
+                if cmds.objExists(ctrl+'.addedBufferGroup'):
+                    self.buffGrp = cmds.listConnections(ctrl+'.addedBufferGroup', s=1,d=0 )[0]
+                else:
+                    self.buffGrp = ibg.insertBufferGroup(ctrl, 'FSDK')
+
                 rots = cmds.getAttr(ctrl+'.r' )
                 trans = cmds.getAttr(ctrl+'.t' )
 
                 #set 0 keyframe
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'tx', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'ty', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'tz', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'rx', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'ry', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'rz', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'tx', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'ty', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'tz', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'rx', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'ry', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'rz', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
 
-                print trans
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'tx', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][0])
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'ty', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][1])
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'tz', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][2])
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'rx', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][0])
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'ry', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][1])
-                cmds.setDrivenKeyframe(buffGrp[0],at = 'rz', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][2])
+                #print trans
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'tx', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][0])
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'ty', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][1])
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'tz', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][2])
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'rx', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][0])
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'ry', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][1])
+                cmds.setDrivenKeyframe(self.buffGrp,at = 'rz', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][2])
 
                 cmds.setAttr(ctrl+'.tx', 0)
                 cmds.setAttr(ctrl+'.ty', 0)
@@ -373,6 +385,12 @@ class guiLoader(object):
                 cmds.setAttr(ctrl+'.ry', 0)
                 cmds.setAttr(ctrl+'.rz', 0)
 
+                print  shapeName, cmds.objExists(shapeName)
+                if not cmds.objExists(shapeName):
+                    self.faceShapeNode = self.__meta.addMetaNode(shapeName,'faceShape')
+                    self.__meta.connectToSystem(self.facialNodes[0], self.faceShapeNode, 'shapes', 'faceShape')
+
+                self.__meta.connectToSystem(shapeName, ctrl, self.__settings.ctrlAttr, 'faceCtrl_'+shapeName) 
 
         self.updateNewShapeCtrls()
 

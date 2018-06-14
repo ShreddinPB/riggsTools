@@ -522,34 +522,67 @@ class attrUtilities(object):
     """
     def addToCompoundAttr(self, node, compoundAttr, newAttr):
     
-        numberOfChildren = cmds.addAttr(node+'.'+compoundAttr, q=1, nc=1)
-        childAttrs = cmds.attributeQuery(compoundAttr,n=node, lc=1)
-        
-        childCons = dict()
-        for ca in childAttrs:
-            incoming = cmds.listConnections(node+'.'+ca, s=1, d=0, p=1)
-            outgoing = cmds.listConnections(node+'.'+ca, s=0, d=1, p=1)
-            childCons[ca] = incoming,outgoing
-        
-        cmds.deleteAttr(node+'.'+compoundAttr)
-        
-        numberOfChildren +=1
-        
-        cmds.addAttr(node,longName=compoundAttr, numberOfChildren = numberOfChildren, attributeType = 'compound')
-        
-        for shape in childCons.keys():
-            cmds.addAttr(node, ln=shape, parent = compoundAttr, at="double", dv = 0)
+        if not cmds.objExists(node+'.'+compoundAttr):
+            cmds.addAttr(node,longName=compoundAttr, numberOfChildren = 1, attributeType = 'compound')
+            if not cmds.objExists(node+'.'+newAttr):
+                cmds.addAttr(node, ln=newAttr, parent = compoundAttr, at="double", dv = 0)
+            else:
+                incoming = cmds.listConnections(node+'.'+newAttr, s=1, d=0, p=1)
+                outgoing = cmds.listConnections(node+'.'+newAttr, s=0, d=1, p=1)
+                cmds.deleteAttr(node+'.'+newAttr)
+                cmds.addAttr(node, ln=newAttr, parent = compoundAttr, at="double", dv = 0)
+
+                if incoming is not None:
+                    for inc in incoming:
+                        cmds.connectAttr(inc, node+'.'+newAttr, f=1)
+                        
+                if outgoing is not None:
+                    for outc in outgoing:
+                        cmds.connectAttr(node+'.'+newAttr, outc, f=1)
+
+        else:
+            numberOfChildren = cmds.addAttr(node+'.'+compoundAttr, q=1, nc=1)
+            childAttrs = cmds.attributeQuery(compoundAttr,n=node, lc=1)
             
-        cmds.addAttr(node, ln=newAttr, parent = compoundAttr, at="double", dv = 0)
-        
-        for shape in childCons.keys():
-            inCon = childCons.get(shape)[0]
-            outCon = childCons.get(shape)[1]
-        
-            if inCon is not None:
-                for inc in inCon:
-                    cmds.connectAttr(inc, node+'.'+shape, f=1)
-                    
-            if outCon is not None:
-                for outc in outCon:
-                    cmds.connectAttr(node+'.'+shape, outc, f=1)
+            childCons = dict()
+            for ca in childAttrs:
+                incoming = cmds.listConnections(node+'.'+ca, s=1, d=0, p=1)
+                outgoing = cmds.listConnections(node+'.'+ca, s=0, d=1, p=1)
+                childCons[ca] = incoming,outgoing
+            
+            cmds.deleteAttr(node+'.'+compoundAttr)
+            
+            numberOfChildren +=1
+            
+            cmds.addAttr(node,longName=compoundAttr, numberOfChildren = numberOfChildren, attributeType = 'compound')
+            
+            for shape in childCons.keys():
+                cmds.addAttr(node, ln=shape, parent = compoundAttr, at="double", dv = 0)
+                
+            if not cmds.objExists(node+'.'+newAttr):
+                cmds.addAttr(node, ln=newAttr, parent = compoundAttr, at="double", dv = 0)
+            else:
+                incoming = cmds.listConnections(node+'.'+newAttr, s=1, d=0, p=1)
+                outgoing = cmds.listConnections(node+'.'+newAttr, s=0, d=1, p=1)
+                cmds.deleteAttr(node+'.'+newAttr)
+                cmds.addAttr(node, ln=newAttr, parent = compoundAttr, at="double", dv = 0)
+
+                if incoming is not None:
+                    for inc in incoming:
+                        cmds.connectAttr(inc, node+'.'+newAttr, f=1)
+                        
+                if outgoing is not None:
+                    for outc in outgoing:
+                        cmds.connectAttr(node+'.'+newAttr, outc, f=1)
+            
+            for shape in childCons.keys():
+                inCon = childCons.get(shape)[0]
+                outCon = childCons.get(shape)[1]
+            
+                if inCon is not None:
+                    for inc in inCon:
+                        cmds.connectAttr(inc, node+'.'+shape, f=1)
+                        
+                if outCon is not None:
+                    for outc in outCon:
+                        cmds.connectAttr(node+'.'+shape, outc, f=1)

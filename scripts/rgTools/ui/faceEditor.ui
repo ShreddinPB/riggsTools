@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -24,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -229,7 +232,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="createShapesTab">
      <attribute name="title">
       <string>Creat Shapes</string>
      </attribute>
@@ -323,6 +326,111 @@
        <string>Create</string>
       </property>
      </widget>
+    </widget>
+    <widget class="QWidget" name="setupDriverTab">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <attribute name="title">
+      <string>Connect to Driver</string>
+     </attribute>
+     <widget class="QTextEdit" name="newExpressionTextEdit_3">
+      <property name="geometry">
+       <rect>
+        <x>329</x>
+        <y>40</y>
+        <width>471</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>30</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="allShapesDriverWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>100</y>
+        <width>790</width>
+        <height>192</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>371</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Select the driver object then click below</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="createDriverButton">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>320</y>
+        <width>791</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Create Driver</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>80</y>
+        <width>311</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Shapes associated with Meta</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="loadDriverButton">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>311</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Load Driver</string>
+      </property>
+     </widget>
+     <zorder>label_7</zorder>
+     <zorder>newExpressionTextEdit_3</zorder>
+     <zorder>allShapesDriverWidget</zorder>
+     <zorder>label_6</zorder>
+     <zorder>createDriverButton</zorder>
+     <zorder>label_7</zorder>
+     <zorder>loadDriverButton</zorder>
     </widget>
    </widget>
   </widget>
