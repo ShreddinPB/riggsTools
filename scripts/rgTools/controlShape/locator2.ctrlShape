@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<shape name="locator2">
+	<degree value="1"/>
+	<vertPos>
+		<vert x="-1.004747" y="0.0" z="0.0"/>
+		<vert x="1.004747" y="0.0" z="0.0"/>
+		<vert x="0.0" y="0.0" z="0.0"/>
+		<vert x="0.0" y="0.0" z="-1.004747"/>
+		<vert x="0.0" y="0.0" z="1.004747"/>
+		<vert x="0.0" y="0.0" z="0.0"/>
+		<vert x="0.0" y="1.004747" z="0.0"/>
+		<vert x="0.0" y="-1.004747" z="0.0"/>
+	</vertPos>
+</shape>

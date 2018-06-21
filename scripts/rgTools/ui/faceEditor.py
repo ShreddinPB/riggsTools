@@ -342,11 +342,11 @@ class guiLoader(object):
             #cmds.addAttr(self.facialNodes[0], ln=shapeName, parent = 'driverValues', at="double", dv = 0) # parent = 'driverValues',
 
             #if using compound attr
-            #self.__atu.addToCompoundAttr(self.facialNodes[0], 'driverValues', shapeName)
+            self.__atu.addToCompoundAttr(self.facialNodes[0], 'driverValues', shapeName)
 
             #not using compound right now
-            cmds.addAttr(self.facialNodes[0], ln=shapeName, at="double", min = 0, dv = 0)
-            cmds.setAttr(self.facialNodes[0]+'.'+shapeName, 0, e=True, keyable=True)
+            #cmds.addAttr(self.facialNodes[0], ln=shapeName, at="double", min = 0, dv = 0)
+            #cmds.setAttr(self.facialNodes[0]+'.'+shapeName, 0, e=True, keyable=True)
 
             print 'Made ', self.facialNodes[0], shapeName, cmds.objExists(self.facialNodes[0]+'.'+shapeName)
             #get animation data
@@ -354,13 +354,21 @@ class guiLoader(object):
 
             for ctrl in self.ctrlsInNewShape:
                 print 'building sdks'
-                if cmds.objExists(ctrl+'.addedBufferGroup'):
-                    self.buffGrp = cmds.listConnections(ctrl+'.addedBufferGroup', s=1,d=0 )[0]
-                else:
-                    self.buffGrp = ibg.insertBufferGroup(ctrl, 'FSDK')
 
                 rots = cmds.getAttr(ctrl+'.r' )
                 trans = cmds.getAttr(ctrl+'.t' )
+
+                if cmds.objExists(ctrl+'.addedBufferGroup'):
+                    self.buffGrp = cmds.listConnections(ctrl+'.addedBufferGroup', s=1,d=0 )[0]
+                else:
+                    cmds.setAttr(ctrl+'.t', 0,0,0)
+                    cmds.setAttr(ctrl+'.r', 0,0,0)
+                    self.buffGrp = ibg.insertBufferGroup(ctrl, 'FSDK')
+                    print trans, rots
+                    cmds.setAttr(ctrl+'.t', trans[0][0],trans[0][1],trans[0][2])
+                    cmds.setAttr(ctrl+'.r', rots[0][0],rots[0][1],rots[0][2])
+
+                
 
                 #set 0 keyframe
                 cmds.setDrivenKeyframe(self.buffGrp,at = 'tx', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
@@ -392,7 +400,7 @@ class guiLoader(object):
 
                 self.__meta.connectToSystem(shapeName, ctrl, self.__settings.ctrlAttr, 'faceCtrl_'+shapeName) 
 
-        self.updateNewShapeCtrls()
+        #self.updateNewShapeCtrls()
 
     def updateNewShapeCtrls(self):
 

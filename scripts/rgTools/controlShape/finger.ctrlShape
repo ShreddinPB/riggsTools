@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<shape name="finger">
+	<degree value="1"/>
+	<vertPos>
+		<vert x="-0.5" y="0.0" z="0.0"/>
+		<vert x="-0.5" y="0.0" z="2.0"/>
+		<vert x="-0.353553" y="0.0" z="2.353553"/>
+		<vert x="0.0" y="0.0" z="2.5"/>
+		<vert x="0.353553" y="0.0" z="2.353553"/>
+		<vert x="0.5" y="0.0" z="2.0"/>
+		<vert x="0.5" y="0.0" z="0.0"/>
+		<vert x="-0.5" y="0.0" z="0.0"/>
+	</vertPos>
+</shape>

@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<shape name="doubleArrow">
+	<degree value="1"/>
+	<vertPos>
+		<vert x="-1.0" y="0.0" z="2.0"/>
+		<vert x="-2.0" y="0.0" z="2.0"/>
+		<vert x="0.0" y="0.0" z="4.0"/>
+		<vert x="2.0" y="0.0" z="2.0"/>
+		<vert x="1.0" y="0.0" z="2.0"/>
+		<vert x="1.0" y="0.0" z="0.0"/>
+		<vert x="1.0" y="0.0" z="-2.0"/>
+		<vert x="2.0" y="0.0" z="-2.0"/>
+		<vert x="0.0" y="0.0" z="-4.0"/>
+		<vert x="-2.0" y="0.0" z="-2.0"/>
+		<vert x="-1.0" y="0.0" z="-2.0"/>
+		<vert x="-1.0" y="0.0" z="0.0"/>
+		<vert x="-1.0" y="0.0" z="2.0"/>
+	</vertPos>
+</shape>

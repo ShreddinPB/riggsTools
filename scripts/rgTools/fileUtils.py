@@ -23,6 +23,7 @@ class fileUtils(object):
         #resources_dir = path.join(path.dirname(__file__), 'resources')
         #self.__controlLocation = path.join(path.dirname(__file__), 'ctrlShapes')
         self.__controlLocation = self.__settings.controlLocation
+        print self.__controlLocation
         self.__ikScriptsLocation = self.__settings.ikSystems #path.join(path.dirname(__file__), 'ikSystem')
         self.__ikAutoSetupsLocation = self.__settings.autoSetupsDir #path.join(path.dirname(__file__), 'autoSetup')
         self.__rootLocation =  self.__settings.installLocation #path.join(path.dirname(__file__))
