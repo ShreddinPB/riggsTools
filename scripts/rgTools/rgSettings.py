@@ -12,8 +12,8 @@ class rgSettings(object):
         self.installLocation = __file__.rpartition('\\')[0]+'/' #'C:/Users/jriggs/cloudDrives/Dropbox/riggingToolsetPython/scripts/rtsp/'
         #print 'Installed in: ', self.installLocation
         #temp for now till I have time to figure out a better way to do this.
-        #self.rigBuildScriptsLocation = 'D:/cloudDrives/DropBox/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
-        self.rigBuildScriptsLocation = 'C:/Users/jriggs/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
+        self.rigBuildScriptsLocation = 'D:/cloudDrives/DropBox/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
+        #self.rigBuildScriptsLocation = 'C:/Users/jriggs/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
         #print '#### INITIALIZING RTSP FROM: ',self.installLocation
         self.autoSetupsDir = self.installLocation+'autoSetups'
         self.controlLocation = self.installLocation+'controlShape/'
@@ -60,6 +60,8 @@ class rgSettings(object):
         self.downAxis = 'x'
         
         self.allSides = [['Left','Right'], ['left','right'], ['Lf','Rt'], ['l_','r_'], ['Lt','Rt']]
+
+        self.defaultDownAxis = 'x'
         
         #attributes
         self.enums = ['autoSetups', 'ikSystems', 'ikAddOns', 'dynamicSetups', 'deformerSetups', 'muscleSetups', 'poseSetups', 'controlShape', 'proxyShape', 'mocapConstraints', 'flipJointAxis', 'rigJointType', 'buildAxis']

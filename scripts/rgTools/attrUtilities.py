@@ -4,7 +4,9 @@ Author: John Riggs
 """
 import rgTools.fileUtils as fu
 
-import maya.cmds as cmds 
+import maya.cmds as cmds
+import maya.mel as mel
+
 import xml.dom.minidom as xd
 
 import logging
@@ -586,3 +588,11 @@ class attrUtilities(object):
                 if outCon is not None:
                     for outc in outCon:
                         cmds.connectAttr(node+'.'+shape, outc, f=1)
+
+
+    def getSelectedChannels(self):
+        channelBox = mel.eval('global string $gChannelBoxName; $temp=$gChannelBoxName;') #fetch maya's main channelbox
+        attrs = cmds.channelBox(channelBox, q=True, sma=True)
+        if not attrs:
+            return []
+        return attrs

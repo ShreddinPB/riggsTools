@@ -57,6 +57,9 @@ class guiLoader(object):
 
         self.ui.mirrorShapeButton.clicked.connect(self.mirrorShape)
 
+        self.ui.loadDriverButton.clicked.connect(self.loadDriverAttr)
+        self.ui.createDriverButton.clicked.connect(self.createDriverSdk)
+
         self.updateUi()
 
         
@@ -75,17 +78,17 @@ class guiLoader(object):
             self.updateShapes()
             self.allFaceCtrls = []
             self.allFaceCtrlShapes = []
-            print 'self.faceShapes ', self.faceShapes
+            #print 'self.faceShapes ', self.faceShapes
             for fs in self.faceShapes:
                 ctrls = cmds.listConnections(fs+'.ctrls', s=0, d=1)
-                print 'ctrls ', ctrls
+                #print 'ctrls ', ctrls
                 if ctrls is not None:
                     self.allFaceCtrls.extend(ctrls)
 
-            print 'Found all ctrls: ', self.allFaceCtrls
+            #print 'Found all ctrls: ', self.allFaceCtrls
 
             for ctrl in self.allFaceCtrls:
-                print ctrl
+                #print ctrl
                 self.allFaceCtrlShapes.append(cmds.listRelatives(ctrl,shapes=True)[0])
 
             print 'Found all ctrl shapes: ', self.allFaceCtrlShapes
@@ -98,7 +101,7 @@ class guiLoader(object):
         else:
             ctrlString = selected.text()
 
-        print 'adding controls ', ctrlString
+        #print 'adding controls ', ctrlString
         self.ui.controlsListWidget.clear()
 
         theShape = ctrlString
@@ -129,14 +132,14 @@ class guiLoader(object):
 
     def editShapeButton(self):
         theShape = self.ui.shapesListWidget.selectedItems()[0].text()
-        print theShape
+        #print theShape
         self.updateControls(theShape)
         self.startEditShape(theShape)
 
     def loadUiWidget(self, parent=None):
         loader = QtUiTools.QUiLoader()
         currentDir = os.path.dirname(__file__)  
-        print 'currentDir file: ', currentDir         
+        #print 'currentDir file: ', currentDir         
         file = QFile(currentDir+"/faceEditor.ui") 
         uifile = QtCore.QFile(file)
         uifile.open(QtCore.QFile.ReadOnly)
@@ -147,7 +150,7 @@ class guiLoader(object):
     def updateShapes(self):
 
         self.faceShapes = self.__meta.findMeta(self.__settings.faceShapes)
-        print 'found face shapes: ', self.faceShapes
+        #print 'found face shapes: ', self.faceShapes
         self.ui.shapesListWidget.clear()
         self.ui.allShapesDriverWidget.clear()
 
@@ -167,13 +170,14 @@ class guiLoader(object):
             self.ui.allShapesDriverWidget.item(idx).setBackground(Qt.black)
             self.ui.allShapesDriverWidget.item(idx).setForeground(Qt.lightGray)
 
+
     def clickedControl(self, ctrlClicked):
 
-        print 'clicked control ', ctrlClicked.text()
+        #print 'clicked control ', ctrlClicked.text()
         theCtrl = ctrlClicked.text()
 
         sdks = cmds.listConnections(theCtrl+'.faceShape_'+self.shapeBeingEdited, s=0, d=1)
-        print 'sdks ', theCtrl+'.faceShape_'+self.shapeBeingEdited, sdks
+        #print 'sdks ', theCtrl+'.faceShape_'+self.shapeBeingEdited, sdks
         self.ui.sdksListWidget.clear()
         self.ui.sdksListWidget.addItems(sdks)
 
@@ -212,7 +216,7 @@ class guiLoader(object):
         else:
             for ad in self.faceShapes:
                 #cmds.setAttr(self.facialNodes[0]+'.'+ad, 0)
-                print ad
+                #print ad
                 if self.nameSpaced:
                     ad = ad.replace(self.nameSpace+':' , '')
 
@@ -221,9 +225,9 @@ class guiLoader(object):
                 self.ui.shapesListWidget.item(adIndex).setForeground(Qt.lightGray)
 
             self.connected = cmds.listConnections(self.facialNodes[0]+'.'+self.shapeBeingEdited, s=1, d=0, p=1)
-            print 'self.connected  ', self.connected , self.facialNodes[0]+'.'+self.shapeBeingEdited
+            #print 'self.connected  ', self.connected , self.facialNodes[0]+'.'+self.shapeBeingEdited
             if self.connected:
-                print 'disconnecting'
+                #print 'disconnecting'
                 cmds.disconnectAttr(self.connected[0], self.facialNodes[0]+'.'+self.shapeBeingEdited)
 
             cmds.setAttr(self.facialNodes[0]+'.'+self.shapeBeingEdited, 1)
@@ -445,3 +449,33 @@ class guiLoader(object):
 
     def intersection(self, lst1, lst2):
         return list(set(lst1) & set(lst2))
+
+
+    def loadDriverAttr(self):
+
+        obj = cmds.ls(sl=True)
+
+        if len(obj) == 0:
+            cmds.error('please select an object and a channel in the channel box')
+        attrs = self.__atu.getSelectedChannels()
+
+        if len(attrs) == 0:
+            cmds.error('please select an attribute in the channel box')
+
+        self.ui.driverAttrText.setText(obj[0]+'.'+attrs[0])
+
+    def createDriverSdk(self):
+
+        driver = self.ui.driverAttrText.toPlainText()
+
+        theShape = self.ui.allShapesDriverWidget.selectedItems()[0].text()
+
+        driven = self.facialNodes[0]+'.'+theShape
+
+
+        driverValue = cmds.getAttr(driver)
+
+        sdkMade = cmds.setDrivenKeyframe(self.facialNodes[0],at = theShape, cd = driver, dv = 0 , v = 0)
+        sdkMade = cmds.setDrivenKeyframe(self.facialNodes[0],at = theShape, cd = driver, dv = driverValue , v = 1)
+
+        print driver, driven

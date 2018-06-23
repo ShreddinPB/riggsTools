@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -329,12 +329,12 @@
     </widget>
     <widget class="QWidget" name="setupDriverTab">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <attribute name="title">
       <string>Connect to Driver</string>
      </attribute>
-     <widget class="QTextEdit" name="newExpressionTextEdit_3">
+     <widget class="QTextEdit" name="driverAttrText">
       <property name="geometry">
        <rect>
         <x>329</x>
@@ -424,13 +424,6 @@
        <string>Load Driver</string>
       </property>
      </widget>
-     <zorder>label_7</zorder>
-     <zorder>newExpressionTextEdit_3</zorder>
-     <zorder>allShapesDriverWidget</zorder>
-     <zorder>label_6</zorder>
-     <zorder>createDriverButton</zorder>
-     <zorder>label_7</zorder>
-     <zorder>loadDriverButton</zorder>
     </widget>
    </widget>
   </widget>
