@@ -27,7 +27,7 @@ class metaSystem(object):
                     cmds.connectAttr(setupDataNode+'.'+attrToConnectTo, objectToConnect+'.'+objectAttr, f=True)
 
         else:
-            cmds.error('setupData node does not exist')
+            cmds.error('setupData node does not exist', setupDataNode)
 
     def addSystemTag(self, setupDataNode, tagName = None):
 
@@ -54,22 +54,32 @@ class metaSystem(object):
 
     def returnMeta(self, node, root = False):
 
-        setupDataNode = cmds.listConnections(node+'.'+self.__settings.setupData , s=1, d=0)
+        sdExists = cmds.objExists(node+'.'+self.__settings.setupData)
+        if sdExists:
+            setupDataNode = cmds.listConnections(node+'.'+self.__settings.setupData , s=1, d=0)
 
-        if len(setupDataNode) > 0:
-            return setupDataNode[0]
+            if len(setupDataNode) > 0:
+                return setupDataNode[0]
+            else:
+                return None
         else:
             return None
-            
 
-    def findMeta(self, system = 'root'):
+    def findMeta(self, system = ''):
 
         returnNodes = []
         networkNodes = cmds.ls(type='network')
 
+        allMetaNodes = []
+
         for node in networkNodes:
             if cmds.objExists(node+'.system'):
+                allMetaNodes.append(node)
                 if cmds.getAttr(node+'.system') == system:
                     returnNodes.append(node)
 
-        return returnNodes
+        if system is not '':
+            return returnNodes
+
+        else:
+            return allMetaNodes

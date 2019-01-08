@@ -21,13 +21,13 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
+      <y>30</y>
       <width>921</width>
       <height>711</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -83,7 +83,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="7" column="0">
         <widget class="QPushButton" name="resetPushButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -102,7 +102,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QPushButton" name="updatePushButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -121,7 +121,7 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QPushButton" name="cancelPushButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -162,16 +162,6 @@
        <item row="3" column="1">
         <widget class="QWidget" name="animCurveWidget" native="true"/>
        </item>
-       <item row="5" column="1">
-        <widget class="QFrame" name="frame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="0">
         <widget class="QPushButton" name="editShapeButton">
          <property name="sizePolicy">
@@ -210,7 +200,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QPushButton" name="newShapeButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
@@ -226,6 +216,25 @@
          </property>
          <property name="text">
           <string>New Shape</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QPushButton" name="addSelectedControlsButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Add Selected Controls</string>
          </property>
         </widget>
        </item>
@@ -426,6 +435,29 @@
      </widget>
     </widget>
    </widget>
+   <widget class="QComboBox" name="selectMetaSystem">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>0</y>
+      <width>271</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>2</y>
+      <width>141</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Meta Nodes in Scene</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -440,16 +472,10 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="updateMetaNodes"/>
     <addaction name="actionUpdate_Shape_List"/>
    </widget>
-   <widget class="QMenu" name="menuFacial_Nodes_in_Scene">
-    <property name="title">
-     <string>Facial Nodes in Scene</string>
-    </property>
-    <addaction name="actionNONE_Update"/>
-   </widget>
    <addaction name="menuFaceEditor"/>
-   <addaction name="menuFacial_Nodes_in_Scene"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionUpdate_Shape_List">
@@ -457,9 +483,51 @@
     <string>Update Shape List</string>
    </property>
   </action>
-  <action name="actionNONE_Update">
+  <action name="updateMetaNodes">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>NONE (Update)</string>
+    <string>Update Meta Nodes</string>
+   </property>
+  </action>
+  <action name="actionTest">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>test</string>
+   </property>
+  </action>
+  <action name="actionTester">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>tester</string>
+   </property>
+  </action>
+  <action name="actionTester_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>tester</string>
    </property>
   </action>
  </widget>

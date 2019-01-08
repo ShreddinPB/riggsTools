@@ -12,8 +12,8 @@ class rgSettings(object):
         self.installLocation = __file__.rpartition('\\')[0]+'/' #'C:/Users/jriggs/cloudDrives/Dropbox/riggingToolsetPython/scripts/rtsp/'
         #print 'Installed in: ', self.installLocation
         #temp for now till I have time to figure out a better way to do this.
-        self.rigBuildScriptsLocation = 'D:/cloudDrives/DropBox/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
-        #self.rigBuildScriptsLocation = 'C:/Users/jriggs/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
+        #self.rigBuildScriptsLocation = 'D:/cloudDrives/DropBox/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
+        self.rigBuildScriptsLocation = 'C:/Users/jriggs/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
         #print '#### INITIALIZING RTSP FROM: ',self.installLocation
         self.autoSetupsDir = self.installLocation+'autoSetups'
         self.controlLocation = self.installLocation+'controlShape/'
@@ -36,6 +36,7 @@ class rgSettings(object):
         self.setupData = 'setupData'
         self.jointsInSystem = 'jointsInSystem'
         self.faceShapes = 'faceShape'
+        self.sdkShapes = 'sdkShape'
         self.driverValues = 'driverValues'
         self.faceNode = 'face'
         

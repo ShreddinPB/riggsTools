@@ -48,7 +48,7 @@ class returnObjectWithAttr(object):
                     if theValue == value or value == "*":
                         foundItems.append(item)
 
-                    if theValue is not None and theValue != '' and value == "!":
+                    if theValue is not None and theValue != '' and theValue != 'none' and value == "!":
                         foundItems.append(item)
 
                 if attrType == 'bool':
@@ -75,6 +75,11 @@ class returnObjectWithAttr(object):
                     if theValue == value or value == "*":
                         foundItems.append(item)
 
+                if attrType == 'double':
+                    theValue = cmds.getAttr(item+"."+attr)
+
+                    if theValue == value or value == "*":
+                        foundItems.append(item)
                     #if len(theValue) > 0 and value == '!':
                         #foundItems.append(item)
 

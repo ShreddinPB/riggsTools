@@ -12,13 +12,13 @@ from PySide2 import QtCore, QtGui, QtUiTools
 import maya.cmds as cmds
 
 import rgTools.metaSystem as rmeta
-import rgTools.rgSettings as rigset
+import rgTools.rgSettings as rgset
 import rgTools.createMatrixReverse as cmr
 import rgTools.attrUtilities as atru
 
 import rgTools.insertBufferGroup as ibg
 
-reload(rigset)
+reload(rgset)
 reload(rmeta)
 reload(cmr)
 reload(atru)
@@ -28,7 +28,7 @@ class guiLoader(object):
     def __init__(self):
         print 'loaded gui tools'
         self.__meta = rmeta.metaSystem()
-        self.__settings = rigset.rgSettings()
+        self.__rgSettings = rgset.rgSettings()
         self.__atu = atru.attrUtilities()
 
         self.isMirrored = False
@@ -50,6 +50,7 @@ class guiLoader(object):
 
         self.ui.editShapeButton.clicked.connect(self.editShapeButton)
         self.ui.updatePushButton.clicked.connect(self.updateShape)
+        self.ui.addSelectedControlsButton.clicked.connect(self.addSelectedControlsToShapeGui)
         self.ui.resetPushButton.clicked.connect(self.resetShape)
         self.ui.cancelPushButton.clicked.connect(self.cancelShapeEdit)
         self.ui.createExressionButton.clicked.connect(self.createNewShape)
@@ -60,38 +61,65 @@ class guiLoader(object):
         self.ui.loadDriverButton.clicked.connect(self.loadDriverAttr)
         self.ui.createDriverButton.clicked.connect(self.createDriverSdk)
 
-        self.updateUi()
+        self.ui.updateMetaNodes.triggered.connect(self.updateMetaNodes)
 
-        
+        self.ui.selectMetaSystem.activated.connect(self.updateUi)
+        self.updateUi()
+        self.updateMetaNodes()
 
         self.ui.show()
+
 
         #cmds.animCurveEditor(pnl=self.ui, p=self.ui.animCurveWidget)
 
     def updateUi(self):
         print 'updating UI'
 
-        self.facialNodes = self.__meta.findMeta(self.__settings.faceNode)
-        if len(self.facialNodes) == 0:
-            print 'No facial nodes exist in scene'
-        else:
+        self.selectedMetaSystem = self.ui.selectMetaSystem.currentText() #self.__meta.findMeta(self.__rgSettings.faceNode)
+        #if len(self.facialNodes) == 0:
+            #print 'No facial nodes exist in scene'
+        #else:
+        print 'self.selectedMetaSystem ', self.selectedMetaSystem
+        if self.selectedMetaSystem != '':
             self.updateShapes()
             self.allFaceCtrls = []
             self.allFaceCtrlShapes = []
-            #print 'self.faceShapes ', self.faceShapes
-            for fs in self.faceShapes:
-                ctrls = cmds.listConnections(fs+'.ctrls', s=0, d=1)
-                #print 'ctrls ', ctrls
-                if ctrls is not None:
-                    self.allFaceCtrls.extend(ctrls)
+            #print 'self.metaShapes ', self.metaShapes
 
-            #print 'Found all ctrls: ', self.allFaceCtrls
+            if len(self.metaShapes) > 0:
+                for fs in self.metaShapes:
+                    if cmds.objExists(fs+'.ctrls'):
+                        ctrls = cmds.listConnections(fs+'.ctrls', s=0, d=1)
+                        #print 'ctrls ', ctrls
+                        if ctrls is not None:
+                            self.allFaceCtrls.extend(ctrls)
 
-            for ctrl in self.allFaceCtrls:
-                #print ctrl
-                self.allFaceCtrlShapes.append(cmds.listRelatives(ctrl,shapes=True)[0])
+                #print 'Found all ctrls: ', self.allFaceCtrls
+
+            if len(self.allFaceCtrls) > 0:
+                for ctrl in self.allFaceCtrls:
+                    #print ctrl
+                    self.allFaceCtrlShapes.append(cmds.listRelatives(ctrl,shapes=True)[0])
 
             print 'Found all ctrl shapes: ', self.allFaceCtrlShapes
+
+    def updateMetaNodes(self):
+
+        print 'Updateing meta nodes'
+        self.metaNodes = self.__meta.findMeta('face')
+
+        self.ui.selectMetaSystem.clear()
+        #self.ui.updateMetaNodes = self.ui.metaModesMenu.addAction('Update')
+        #self.ui.updateMetaNodes.triggered.connect(self.updateMetaNodes)
+
+        #if len(self.metaNodes) > 0:
+            #self.ui.selectMetaSystem.addItem(self.metaNodes[0])
+            #self.ui.metaModesMenu.addAction(self.metaNodes[0], checkable=True, checked = True)
+
+        for mn in self.metaNodes:
+            self.ui.selectMetaSystem.addItem(mn, checkable=True)
+
+        self.updateUi()
 
     def updateControls(self,selected):
 
@@ -112,7 +140,7 @@ class guiLoader(object):
 
         shapeIndex = self.indexFromString(selected.text())
 
-        faceNodeAttr = self.facialNodes[0]+'.'+selected.text()
+        faceNodeAttr = self.selectedMetaSystem+'.'+selected.text()
         isConnected = cmds.listConnections(faceNodeAttr,s=1,d=0,p=1)
         if isConnected:
             faceNodeAttr = isConnected[0]
@@ -149,27 +177,32 @@ class guiLoader(object):
 
     def updateShapes(self):
 
-        self.faceShapes = self.__meta.findMeta(self.__settings.faceShapes)
-        #print 'found face shapes: ', self.faceShapes
-        self.ui.shapesListWidget.clear()
-        self.ui.allShapesDriverWidget.clear()
+        #self.metaShapes = self.__meta.findMeta(self.__rgSettings.sdkShapes)
 
-        self.nameSpaced =True
-        self.nameSpace = ':'.join(self.faceShapes[0].split(':')[:-1])
-        if self.nameSpace == '':
-            self.nameSpaced = False
+        if cmds.objExists(self.selectedMetaSystem+'.'+self.__rgSettings.sdkShapes):
+            self.metaShapes = cmds.listConnections(self.selectedMetaSystem+'.'+self.__rgSettings.sdkShapes, s=0, d=1)        
+            #print 'found face shapes: ', self.metaShapes
+            self.ui.shapesListWidget.clear()
+            self.ui.allShapesDriverWidget.clear()
 
-        for idx, fs in enumerate(self.faceShapes):
-            if self.nameSpaced:
-                fs = fs.replace(self.nameSpace+':' , '')
-            self.ui.shapesListWidget.addItem(fs)
-            self.ui.shapesListWidget.item(idx).setBackground(Qt.black)
-            self.ui.shapesListWidget.item(idx).setForeground(Qt.lightGray)
+            self.nameSpaced =True
+            self.nameSpace = ':'.join(self.metaShapes[0].split(':')[:-1])
+            if self.nameSpace == '':
+                self.nameSpaced = False
 
-            self.ui.allShapesDriverWidget.addItem(fs)
-            self.ui.allShapesDriverWidget.item(idx).setBackground(Qt.black)
-            self.ui.allShapesDriverWidget.item(idx).setForeground(Qt.lightGray)
+            for idx, fs in enumerate(self.metaShapes):
+                if self.nameSpaced:
+                    fs = fs.replace(self.nameSpace+':' , '')
+                self.ui.shapesListWidget.addItem(fs)
+                self.ui.shapesListWidget.item(idx).setBackground(Qt.black)
+                self.ui.shapesListWidget.item(idx).setForeground(Qt.lightGray)
 
+                self.ui.allShapesDriverWidget.addItem(fs)
+                self.ui.allShapesDriverWidget.item(idx).setBackground(Qt.black)
+                self.ui.allShapesDriverWidget.item(idx).setForeground(Qt.lightGray)
+
+        else:
+            self.metaShapes = []
 
     def clickedControl(self, ctrlClicked):
 
@@ -203,9 +236,9 @@ class guiLoader(object):
 
         
 
-        isSet = cmds.getAttr(self.facialNodes[0]+'.'+self.shapeBeingEdited)
+        isSet = cmds.getAttr(self.selectedMetaSystem+'.'+self.shapeBeingEdited)
         if isSet:
-            #cmds.setAttr(self.facialNodes[0]+'.'+self.shapeBeingEdited, 0)
+            #cmds.setAttr(self.selectedMetaSystem+'.'+self.shapeBeingEdited, 0)
 
             self.ui.shapesListWidget.item(shapeIndex).setBackground(Qt.black)
             self.ui.shapesListWidget.item(shapeIndex).setForeground(Qt.lightGray)
@@ -214,8 +247,8 @@ class guiLoader(object):
                 self.updateShape()
 
         else:
-            for ad in self.faceShapes:
-                #cmds.setAttr(self.facialNodes[0]+'.'+ad, 0)
+            for ad in self.metaShapes:
+                #cmds.setAttr(self.selectedMetaSystem+'.'+ad, 0)
                 #print ad
                 if self.nameSpaced:
                     ad = ad.replace(self.nameSpace+':' , '')
@@ -224,13 +257,13 @@ class guiLoader(object):
                 self.ui.shapesListWidget.item(adIndex).setBackground(Qt.black)
                 self.ui.shapesListWidget.item(adIndex).setForeground(Qt.lightGray)
 
-            self.connected = cmds.listConnections(self.facialNodes[0]+'.'+self.shapeBeingEdited, s=1, d=0, p=1)
-            #print 'self.connected  ', self.connected , self.facialNodes[0]+'.'+self.shapeBeingEdited
+            self.connected = cmds.listConnections(self.selectedMetaSystem+'.'+self.shapeBeingEdited, s=1, d=0, p=1)
+            #print 'self.connected  ', self.connected , self.selectedMetaSystem+'.'+self.shapeBeingEdited
             if self.connected:
                 #print 'disconnecting'
-                cmds.disconnectAttr(self.connected[0], self.facialNodes[0]+'.'+self.shapeBeingEdited)
+                cmds.disconnectAttr(self.connected[0], self.selectedMetaSystem+'.'+self.shapeBeingEdited)
 
-            cmds.setAttr(self.facialNodes[0]+'.'+self.shapeBeingEdited, 1)
+            cmds.setAttr(self.selectedMetaSystem+'.'+self.shapeBeingEdited, 1)
 
             self.ui.shapesListWidget.item(shapeIndex).setBackground(Qt.green)
             self.ui.shapesListWidget.item(shapeIndex).setForeground(Qt.black)
@@ -255,29 +288,59 @@ class guiLoader(object):
             cmds.setAttr(ctrl+'.t', 0,0,0,)
             cmds.setAttr(ctrl+'.r', 0,0,0,)
 
-            theBuf = cmds.listConnections(ctrl+'.addedBufferGroup', s=1, d=0)[0]
+            #make sure the FSDK is in the heirarchy
+            fsdk = ctrl+'_FSDK'
+            ueTransNode = ctrl+'_unrealTransfer'
+
+            if not cmds.objExists(fsdk):
+                if cmds.objExists(ueTransNode):
+                    self.buffGrp = ibg.insertBufferGroup(ueTransNode, 'FSDK')
+                    self.buffGrp = cmds.rename(self.buffGrp, fsdk)
+                else:
+                    self.buffGrp = ibg.insertBufferGroup(ctrl, 'FSDK')
+                cmds.addAttr(ctrl, ln= 'FsdkBuffer', at="message" )
+                cmds.addAttr(self.buffGrp, ln= 'theCtrl', at="message" )
+                cmds.connectAttr(fsdk+'.theCtrl', ctrl+'.FsdkBuffer', f=1)
+                self.addCtrlToShape(ctrl, self.shapeBeingEdited)
+                self.__meta.connectToSystem(self.shapeBeingEdited, ctrl, self.__rgSettings.ctrlAttr, 'sdkCtrl_'+self.shapeBeingEdited)
+            else:
+                shapeAttrExists = False 
+                udAttrs = cmds.listAttr(ctrl, ud=1)
+                for ud in udAttrs:
+                    if self.shapeBeingEdited in ud:
+                        shapeAttrExists = True
+
+                if not shapeAttrExists:
+                    self.addCtrlToShape(ctrl, self.shapeBeingEdited)
+                    self.__meta.connectToSystem(self.shapeBeingEdited, ctrl, self.__rgSettings.ctrlAttr, 'sdkCtrl_'+self.shapeBeingEdited)
+
+            theBuf = cmds.listConnections(ctrl+'.FsdkBuffer', s=1, d=0)[0]
             cmds.xform(theBuf ,ws=True,m=(cmds.xform(ctrlLoc,q=True,ws=True,m=True)))
 
-            for axis in ('tx','ty','tz','rx','ry','rz'):
-                animCurve = self.returnAnimCurveOfCtrlFromShape(self.facialNodes[0] , self.shapeBeingEdited, theBuf+'.'+axis)
+            ctrlsAlreadyInShape = cmds.listConnections(self.shapeBeingEdited+'.ctrls', s=0, d=1)
+            if ctrl in ctrlsAlreadyInShape:
+                for axis in ('tx','ty','tz','rx','ry','rz'):
+                    animCurve = self.returnAnimCurveOfCtrlFromShape(self.selectedMetaSystem , self.shapeBeingEdited, theBuf+'.'+axis)
 
-                newValue = cmds.getAttr(theBuf+'.'+axis)
+                    newValue = cmds.getAttr(theBuf+'.'+axis)
 
-                if len(animCurve) == 0:
-                    sdkMade = cmds.setDrivenKeyframe(theBuf,at = axis, cd = self.facialNodes[0]+'.'+self.shapeBeingEdited, dv = 0 , v = 0)
-                    sdkMade = cmds.setDrivenKeyframe(theBuf,at = axis, cd = self.facialNodes[0]+'.'+self.shapeBeingEdited, dv = 0 , v = newValue)#, itt = inTangentTypeAttr, ott = outTangentTypeAttr)
+                    if len(animCurve) == 0:
+                        sdkMade = cmds.setDrivenKeyframe(theBuf,at = axis, cd = self.selectedMetaSystem+'.'+self.shapeBeingEdited, dv = 0 , v = 0)
+                        sdkMade = cmds.setDrivenKeyframe(theBuf,at = axis, cd = self.selectedMetaSystem+'.'+self.shapeBeingEdited, dv = 0 , v = newValue)#, itt = inTangentTypeAttr, ott = outTangentTypeAttr)
 
-                else:
-                    cmds.keyframe(animCurve, e = 1, iub = True, a = True, o = 'move', vc = newValue, index = (1,1))
+                    else:
+                        cmds.keyframe(animCurve, e = 1, iub = True, a = True, o = 'move', vc = newValue, index = (1,1))
 
-        #animCurves = cmds.listConnections( self.facialNodes[0]+'.'+self.shapeBeingEdited, s=0, d=1 )
+                
+
+        #animCurves = cmds.listConnections( self.selectedMetaSystem+'.'+self.shapeBeingEdited, s=0, d=1 )
         #for ac in animCurves:
             #cmds.keyframe(ac, e = 1, iub = True, r = True, o = 'over', t = 1)
 
         #if self.ui.autoHideCheckBox.isChecked():
             #for cis in self.allFaceCtrls:
                 #cmds.setAttr(cis+'.v', 1)
-        cmds.setAttr(self.facialNodes[0]+'.'+self.shapeBeingEdited, 0)
+        cmds.setAttr(self.selectedMetaSystem+'.'+self.shapeBeingEdited, 0)
 
         if self.ui.autoHideCheckBox.isChecked():
             cmds.viewFit( self.allFaceCtrlShapes )
@@ -289,9 +352,26 @@ class guiLoader(object):
         cmds.delete(deleteLocs)
 
         if self.connected:
-                cmds.connectAttr(self.connected[0], self.facialNodes[0]+'.'+self.shapeBeingEdited, f=True)
+                cmds.connectAttr(self.connected[0], self.selectedMetaSystem+'.'+self.shapeBeingEdited, f=True)
 
         self.isEditing = False
+
+    def addSelectedControlsToShapeGui(self):
+
+        if self.isEditing:
+            controls = cmds.ls(sl=True)
+            controlsInShape = cmds.listConnections(self.shapeBeingEdited+'.ctrls', s=0, d=1)
+            for ctrl in controls:
+                if ctrl not in controlsInShape:
+                    #cmds.connectAttr
+                    self.ui.controlsListWidget.addItem(ctrl)
+
+        else:
+            cmds.error('Need to be editing a shape')
+
+        self.ctrlsInShape = []
+        for index in xrange(self.ui.controlsListWidget.count()):
+             self.ctrlsInShape.append(self.ui.controlsListWidget.item(index).text())
 
     def resetShape(self):
 
@@ -332,79 +412,83 @@ class guiLoader(object):
 
         shapeName = self.ui.newExpressionTextEdit.toPlainText()
 
-        print shapeName
-
-        if shapeName in self.faceShapes:
+        if shapeName in self.metaShapes:
             cmds.error('shape already exists, please choose a new name', shapeName)
         else:
             self.ctrlsInNewShape = []
             for index in xrange(self.ui.newShapeCtrlsWidget.count()):
                  self.ctrlsInNewShape.append(self.ui.newShapeCtrlsWidget.item(index).text())
 
-            print shapeName, self.ctrlsInNewShape, self.facialNodes[0]
+            print shapeName, self.ctrlsInNewShape, self.selectedMetaSystem
 
-            #cmds.addAttr(self.facialNodes[0], ln=shapeName, parent = 'driverValues', at="double", dv = 0) # parent = 'driverValues',
+            #cmds.addAttr(self.selectedMetaSystem, ln=shapeName, parent = 'driverValues', at="double", dv = 0) # parent = 'driverValues',
 
             #if using compound attr
-            self.__atu.addToCompoundAttr(self.facialNodes[0], 'driverValues', shapeName)
+            self.__atu.addToCompoundAttr(self.selectedMetaSystem, 'driverValues', shapeName)
 
             #not using compound right now
-            #cmds.addAttr(self.facialNodes[0], ln=shapeName, at="double", min = 0, dv = 0)
-            #cmds.setAttr(self.facialNodes[0]+'.'+shapeName, 0, e=True, keyable=True)
+            #cmds.addAttr(self.selectedMetaSystem, ln=shapeName, at="double", min = 0, dv = 0)
+            #cmds.setAttr(self.selectedMetaSystem+'.'+shapeName, 0, e=True, keyable=True)
 
-            print 'Made ', self.facialNodes[0], shapeName, cmds.objExists(self.facialNodes[0]+'.'+shapeName)
+            print 'Made ', self.selectedMetaSystem, shapeName, cmds.objExists(self.selectedMetaSystem+'.'+shapeName)
             #get animation data
 
 
             for ctrl in self.ctrlsInNewShape:
                 print 'building sdks'
 
-                rots = cmds.getAttr(ctrl+'.r' )
-                trans = cmds.getAttr(ctrl+'.t' )
-
-                if cmds.objExists(ctrl+'.addedBufferGroup'):
-                    self.buffGrp = cmds.listConnections(ctrl+'.addedBufferGroup', s=1,d=0 )[0]
-                else:
-                    cmds.setAttr(ctrl+'.t', 0,0,0)
-                    cmds.setAttr(ctrl+'.r', 0,0,0)
-                    self.buffGrp = ibg.insertBufferGroup(ctrl, 'FSDK')
-                    print trans, rots
-                    cmds.setAttr(ctrl+'.t', trans[0][0],trans[0][1],trans[0][2])
-                    cmds.setAttr(ctrl+'.r', rots[0][0],rots[0][1],rots[0][2])
-
+                self.addCtrlToShape(ctrl, shapeName)
                 
-
-                #set 0 keyframe
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'tx', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'ty', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'tz', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'rx', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'ry', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'rz', cd = self.facialNodes[0]+'.'+shapeName, dv = 0, v = 0)
-
-                #print trans
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'tx', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][0])
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'ty', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][1])
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'tz', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = trans[0][2])
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'rx', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][0])
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'ry', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][1])
-                cmds.setDrivenKeyframe(self.buffGrp,at = 'rz', cd = self.facialNodes[0]+'.'+shapeName, dv = 1, v = rots[0][2])
-
-                cmds.setAttr(ctrl+'.tx', 0)
-                cmds.setAttr(ctrl+'.ty', 0)
-                cmds.setAttr(ctrl+'.tz', 0)
-                cmds.setAttr(ctrl+'.rx', 0)
-                cmds.setAttr(ctrl+'.ry', 0)
-                cmds.setAttr(ctrl+'.rz', 0)
-
-                print  shapeName, cmds.objExists(shapeName)
-                if not cmds.objExists(shapeName):
-                    self.faceShapeNode = self.__meta.addMetaNode(shapeName,'faceShape')
-                    self.__meta.connectToSystem(self.facialNodes[0], self.faceShapeNode, 'shapes', 'faceShape')
-
-                self.__meta.connectToSystem(shapeName, ctrl, self.__settings.ctrlAttr, 'faceCtrl_'+shapeName) 
-
         #self.updateNewShapeCtrls()
+
+    def addCtrlToShape(self, ctrl, shapeName):
+
+        rots = cmds.getAttr(ctrl+'.r' )
+        trans = cmds.getAttr(ctrl+'.t' )
+
+        if cmds.objExists(ctrl+'.FsdkBuffer'):
+            self.buffGrp = cmds.listConnections(ctrl+'.FsdkBuffer', s=1,d=0 )[0]
+        else:
+            cmds.setAttr(ctrl+'.t', 0,0,0)
+            cmds.setAttr(ctrl+'.r', 0,0,0)
+            self.buffGrp = ibg.insertBufferGroup(ctrl, 'FSDK')
+            #print trans, rots
+            cmds.setAttr(ctrl+'.t', trans[0][0],trans[0][1],trans[0][2])
+            cmds.setAttr(ctrl+'.r', rots[0][0],rots[0][1],rots[0][2])
+
+        
+
+        #set 0 keyframe
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'tx', cd = self.selectedMetaSystem+'.'+shapeName, dv = 0, v = 0)
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'ty', cd = self.selectedMetaSystem+'.'+shapeName, dv = 0, v = 0)
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'tz', cd = self.selectedMetaSystem+'.'+shapeName, dv = 0, v = 0)
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'rx', cd = self.selectedMetaSystem+'.'+shapeName, dv = 0, v = 0)
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'ry', cd = self.selectedMetaSystem+'.'+shapeName, dv = 0, v = 0)
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'rz', cd = self.selectedMetaSystem+'.'+shapeName, dv = 0, v = 0)
+
+        #print trans
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'tx', cd = self.selectedMetaSystem+'.'+shapeName, dv = 1, v = trans[0][0])
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'ty', cd = self.selectedMetaSystem+'.'+shapeName, dv = 1, v = trans[0][1])
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'tz', cd = self.selectedMetaSystem+'.'+shapeName, dv = 1, v = trans[0][2])
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'rx', cd = self.selectedMetaSystem+'.'+shapeName, dv = 1, v = rots[0][0])
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'ry', cd = self.selectedMetaSystem+'.'+shapeName, dv = 1, v = rots[0][1])
+        cmds.setDrivenKeyframe(self.buffGrp,at = 'rz', cd = self.selectedMetaSystem+'.'+shapeName, dv = 1, v = rots[0][2])
+
+        cmds.setAttr(ctrl+'.tx', 0)
+        cmds.setAttr(ctrl+'.ty', 0)
+        cmds.setAttr(ctrl+'.tz', 0)
+        cmds.setAttr(ctrl+'.rx', 0)
+        cmds.setAttr(ctrl+'.ry', 0)
+        cmds.setAttr(ctrl+'.rz', 0)
+
+        #print  shapeName, cmds.objExists(shapeName), self.selectedMetaSystem, cmds.objExists(self.selectedMetaSystem)
+        if not cmds.objExists(shapeName):
+            shapeName = self.__meta.addMetaNode(shapeName,'faceShape')
+            print 'shapeName ', shapeName, self.selectedMetaSystem, shapeName, 'shapes', self.__rgSettings.sdkShapes
+            self.__meta.connectToSystem(self.selectedMetaSystem, shapeName, self.__rgSettings.sdkShapes, self.__rgSettings.sdkShapes)
+
+        print 'wtf ', shapeName, ctrl, self.__rgSettings.ctrlAttr, 'sdkCtrl_'+shapeName
+        self.__meta.connectToSystem(shapeName, ctrl, self.__rgSettings.ctrlAttr, 'sdkCtrl_'+shapeName)
 
     def updateNewShapeCtrls(self):
 
@@ -460,22 +544,32 @@ class guiLoader(object):
         attrs = self.__atu.getSelectedChannels()
 
         if len(attrs) == 0:
-            cmds.error('please select an attribute in the channel box')
+            #cmds.error('please select an attribute in the channel box')
+            print ' No attr selected, will auto generate attr of same name'
 
-        self.ui.driverAttrText.setText(obj[0]+'.'+attrs[0])
+            self.ui.driverAttrText.setText(obj[0])
+
+        else:
+            self.ui.driverAttrText.setText(obj[0]+'.'+attrs[0])
 
     def createDriverSdk(self):
 
         driver = self.ui.driverAttrText.toPlainText()
-
         theShape = self.ui.allShapesDriverWidget.selectedItems()[0].text()
 
-        driven = self.facialNodes[0]+'.'+theShape
+        splitDrive = driver.split('.')
+        if len(splitDrive) == 1:
+            cmds.addAttr(driver, ln=theShape, at="double", dv = 0, min = 0, max = 1)
+            cmds.setAttr(driver+'.'+theShape,  1, e=True, keyable = True, cb = True)
+            driver = driver+'.'+theShape
 
+        driven = self.selectedMetaSystem+'.'+theShape
 
         driverValue = cmds.getAttr(driver)
 
-        sdkMade = cmds.setDrivenKeyframe(self.facialNodes[0],at = theShape, cd = driver, dv = 0 , v = 0)
-        sdkMade = cmds.setDrivenKeyframe(self.facialNodes[0],at = theShape, cd = driver, dv = driverValue , v = 1)
+        sdkMade = cmds.setDrivenKeyframe(self.selectedMetaSystem,at = theShape, cd = driver, dv = 0 , v = 0)
+        sdkMade = cmds.setDrivenKeyframe(self.selectedMetaSystem,at = theShape, cd = driver, dv = driverValue , v = 1)
+
+        cmds.setAttr(driver,  0)
 
         print driver, driven

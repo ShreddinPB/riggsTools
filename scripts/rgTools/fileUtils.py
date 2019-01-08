@@ -29,6 +29,8 @@ class fileUtils(object):
         self.__rootLocation =  self.__settings.installLocation #path.join(path.dirname(__file__))
         self.__riggingLocation =  self.__settings.rigBuildScriptsLocation #path.join(path.dirname(__file__))
 
+        self.__weaponFiles = {}
+
     def checkOrMakeDirectory(self, theDir):
 
         d=os.path.dirname(theDir)
@@ -114,9 +116,10 @@ class fileUtils(object):
     def bumpFileVersion(self, directory, extension):
         
         newestFile = self.returnNewestDate(directory, extension)
-        print 'newestFile ', newestFile
+        #print 'newestFile ', newestFile
         if newestFile is None:
-            newName = directory+'/'+directory.split('/')[:-4][-1]+'_'+directory.split('/')[-1]+'.01.ma'
+            #print 'directory.split(\'/\') ', directory.split('/'), directory.split('/')[:-3][-1]
+            newName = directory+'/'+directory.split('/')[:-3][-1]+'_'+directory.split('/')[-1]+'.01.ma'
             cmds.warning('No files in that directory returning a new name: ', newName)
 
             return newName
@@ -202,3 +205,18 @@ class fileUtils(object):
         f = open(fileIn,'w')
         f.write(newdata)
         f.close()
+
+    def returnWeapons(self,rootDir):
+
+        returnThese = []
+        files = self.returnAllFiles(rootDir,['png'])
+        print 'allFiles ', files
+        for fl in files:
+            
+            justFile = fl.split('\\')[-1]
+            print justFile, justFile.startswith('attach_')
+            if justFile.startswith('attach_'):
+                returnThese.append(justFile.replace('attach_', '').split('.')[0])
+                self.__weaponFiles[justFile] = fl.replace('\\','/')
+
+        return self.__weaponFiles
