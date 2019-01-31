@@ -201,6 +201,7 @@ class attrUtilities(object):
         @param fileName: the file to save as
         @param attrs: if nothing is passed then it saves all used defined attrs
         '''
+        print 'Saving attrs for: ', objects
 
         doc = xd.Document()
         root = doc.createElement("objects")
@@ -221,10 +222,12 @@ class attrUtilities(object):
             objElement = doc.createElement(obj)
             root.appendChild(objElement)
 
-            if len(attrs) == 0:
+            if attrs is None:
+                attrs = cmds.listAttr(obj,w=True, userDefined = True)
+            elif len(attrs) == 0:
                 attrs = cmds.listAttr(obj,w=True, userDefined = True)
 
-            if len(attrs) != 0:
+            if attrs:
                 for attr in attrs:
 
                     if cmds.objExists(obj+'.'+attr):
@@ -306,6 +309,9 @@ class attrUtilities(object):
             strings = []
             enums = []
 
+        print 'Saving Rig Description as: '
+        print fileName
+        
         f = open(fileName, 'w')
 
         f.write(doc.toprettyxml())
