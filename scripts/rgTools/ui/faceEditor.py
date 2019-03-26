@@ -446,8 +446,9 @@ class guiLoader(object):
         rots = cmds.getAttr(ctrl+'.r' )
         trans = cmds.getAttr(ctrl+'.t' )
 
-        if cmds.objExists(ctrl+'.FsdkBuffer'):
-            self.buffGrp = cmds.listConnections(ctrl+'.FsdkBuffer', s=1,d=0 )[0]
+        #this was '.FsdkBuffer' might need a better way to do this
+        if cmds.objExists(ctrl+'.addedBufferGroup'):
+            self.buffGrp = cmds.listConnections(ctrl+'.addedBufferGroup', s=1,d=0 )[0]
         else:
             cmds.setAttr(ctrl+'.t', 0,0,0)
             cmds.setAttr(ctrl+'.r', 0,0,0)

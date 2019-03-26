@@ -13,7 +13,8 @@ class rgSettings(object):
         #print 'Installed in: ', self.installLocation
         #temp for now till I have time to figure out a better way to do this.
         #self.rigBuildScriptsLocation = 'D:/cloudDrives/DropBox/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
-        self.rigBuildScriptsLocation = 'C:/Users/jriggs/Dropbox (Personal)/riggingToolsetPython/scripts/rtsp/'
+        #self.rigBuildScriptsLocation = 'D:/Dropbox (Personal)/riggingtoolsetpython/scripts/rtsp/'
+        self.rigBuildScriptsLocation = "C:/Users/jriggs/Dropbox (Personal)/riggingtoolsetpython/scripts/rtsp"
         #print '#### INITIALIZING RTSP FROM: ',self.installLocation
         self.autoSetupsDir = self.installLocation+'autoSetups'
         self.controlLocation = self.installLocation+'controlShape/'

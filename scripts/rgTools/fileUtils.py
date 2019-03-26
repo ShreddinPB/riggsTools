@@ -7,6 +7,7 @@ reload(rigset)
 
 import os
 import glob
+import fnmatch
 from os import path
 import maya.cmds as cmds
 
@@ -69,16 +70,23 @@ class fileUtils(object):
 
     #this returns all files in the directory and sub directories
     def returnAllFiles(self, directory, extension = []):
+        print 'rtsp'
+        #if type(extension) is str:
+            #extension = [extension]
 
-        if type(extension) is str:
-            extension = [extension]
-
+        """
         allFiles = []
         for path, subdirs, files in os.walk(directory):
             for name in files:
                 for ext in extension:
                     if name.endswith(ext):
                         allFiles.append(os.path.join(path, name))
+        """
+        
+        allFiles = []
+        for root, dirnames, filenames in os.walk(directory):
+            for filename in fnmatch.filter(filenames, extension):
+                allFiles .append(os.path.join(root, filename))
 
         return allFiles
 
@@ -208,9 +216,11 @@ class fileUtils(object):
 
     def returnWeapons(self,rootDir):
 
+        print 'rootDir ', rootDir
         returnThese = []
-        files = self.returnAllFiles(rootDir,['png'])
+        files = self.returnAllFiles(rootDir,'attach*.png')
         print 'allFiles ', files
+        """
         for fl in files:
             
             justFile = fl.split('\\')[-1]
@@ -218,5 +228,6 @@ class fileUtils(object):
             if justFile.startswith('attach_'):
                 returnThese.append(justFile.replace('attach_', '').split('.')[0])
                 self.__weaponFiles[justFile] = fl.replace('\\','/')
-
-        return self.__weaponFiles
+        """
+        #return self.__weaponFiles
+        return files
